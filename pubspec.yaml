@@ -38,6 +38,7 @@ dependencies:
   go_router: ^12.1.0
   riverpod: ^2.4.5
   drift: ^2.13.1
+  flutter_hooks: ^0.20.3
 
 dev_dependencies:
   flutter_test:
