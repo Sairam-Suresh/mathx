@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:mathx/logic/data_storage/tables/note.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/v1.dart';
 
 part 'database.g.dart';
 

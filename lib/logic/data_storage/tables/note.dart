@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
 import 'package:uuid/v1.dart';
 
 @UseRowClass(Note)
@@ -20,15 +19,13 @@ class MathNotes extends Table {
 
 // Custom row class for the Notes table
 class Note {
-  final String id;
   final String name;
   final String content;
   final DateTime lastModifiedDate;
   final bool renderMath;
 
   Note(
-      {required this.id,
-      required this.name,
+      {required this.name,
       required this.content,
       required this.lastModifiedDate,
       required this.renderMath});
@@ -41,7 +38,6 @@ class Note {
         name: extractedData[0],
         content: extractedData[1].replaceAll("~", "~~"),
         renderMath: extractedData[2] == "true" ? true : false,
-        lastModifiedDate: DateTime.now(),
-        id: const Uuid().v1());
+        lastModifiedDate: DateTime.now());
   }
 }
