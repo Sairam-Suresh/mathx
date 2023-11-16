@@ -5,7 +5,8 @@ class Notes extends Table {
 class MathNotes extends Table {
   TextColumn get name => text()();
   TextColumn get content => text()();
-  DateTimeColumn get lastModifiedDate => dateTime()();
+  DateTimeColumn get lastModifiedDate =>
+      dateTime().withDefault(Constant(DateTime.now()))();
   BoolColumn get renderMath => boolean()();
 }
 
