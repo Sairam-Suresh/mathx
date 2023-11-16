@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v1.dart';
 
+@UseRowClass(Note)
 class MathNotes extends Table {
   @override
   Set<Column<Object>>? get primaryKey => {uuid};
