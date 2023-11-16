@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 class Notes extends Table {
   IntColumn get id => integer().autoIncrement()();
+class MathNotes extends Table {
   TextColumn get name => text()();
   TextColumn get content => text()();
   DateTimeColumn get lastModifiedDate => dateTime()();

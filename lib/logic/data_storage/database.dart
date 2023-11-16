@@ -9,7 +9,7 @@ import 'package:path_provider/path_provider.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Notes])
+@DriftDatabase(tables: [MathNotes])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
