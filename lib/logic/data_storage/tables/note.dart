@@ -1,8 +1,15 @@
-import 'package:drift/drift.dart';
+import 'dart:convert';
 
-class Notes extends Table {
-  IntColumn get id => integer().autoIncrement()();
+import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/v1.dart';
+
 class MathNotes extends Table {
+  @override
+  Set<Column<Object>>? get primaryKey => {uuid};
+
+  TextColumn get uuid =>
+      text().withDefault(Constant(const UuidV1().generate().toString()))();
   TextColumn get name => text()();
   TextColumn get content => text()();
   DateTimeColumn get lastModifiedDate =>
