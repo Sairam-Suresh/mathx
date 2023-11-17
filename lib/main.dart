@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mathx/screens/calculators/main_calculator.dart';
 import 'package:mathx/screens/cheatsheets/cheatsheets.dart';
+import 'package:mathx/screens/notes/note_view_and_editor.dart';
 import 'package:mathx/screens/notes/notes.dart';
 import 'package:mathx/screens/root.dart';
 
@@ -17,7 +19,13 @@ GoRouter _router = GoRouter(
       GoRoute(
           path: "/notes",
           pageBuilder: (context, state) =>
-              const NoTransitionPage(child: Notes())),
+              const NoTransitionPage(child: Notes()),
+          routes: [
+            GoRoute(
+              path: "view/:note", // Use UUID Here
+              builder: (context, state) => NoteViewAndEditor(),
+            )
+          ]),
       GoRoute(
           path: "/cheatsheets",
           pageBuilder: (context, state) =>
