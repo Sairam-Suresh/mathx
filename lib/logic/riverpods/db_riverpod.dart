@@ -5,6 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'db_riverpod.g.dart';
 
 @Riverpod(keepAlive: true)
-AppDatabase database(Ref ref) {
+AppDatabase databaseRiverpod(Ref ref) {
   return AppDatabase();
 }
