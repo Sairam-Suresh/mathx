@@ -47,6 +47,7 @@ dependencies:
   freezed: ^2.4.5
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
+  appflowy_editor: ^0.0.4
 
 dev_dependencies:
   flutter_test:
