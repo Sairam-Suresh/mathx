@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 import 'package:uuid/v1.dart';
 
 @UseRowClass(Note)
 class MathNotes extends Table {
-  @override
-  Set<Column<Object>>? get primaryKey => {uuid};
+  IntColumn get id => integer().autoIncrement()();
 
   TextColumn get uuid =>
       text().withDefault(Constant(const UuidV1().generate().toString()))();
@@ -19,13 +19,15 @@ class MathNotes extends Table {
 
 // Custom row class for the Notes table
 class Note {
+  final String uuid;
   final String name;
   final String content;
   final DateTime lastModifiedDate;
   final bool renderMath;
 
   Note(
-      {required this.name,
+      {required this.uuid,
+      required this.name,
       required this.content,
       required this.lastModifiedDate,
       required this.renderMath});
@@ -35,6 +37,7 @@ class Note {
     var extractedData = decodedData.split(" ␢␆␝⎠⎡⍰⎀ ");
 
     return Note(
+        uuid: const Uuid().v1().toString(),
         name: extractedData[0],
         content: extractedData[1].replaceAll("~", "~~"),
         renderMath: extractedData[2] == "true" ? true : false,
