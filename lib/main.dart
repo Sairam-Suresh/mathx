@@ -7,6 +7,7 @@ import 'package:mathx/screens/root.dart';
 
 void main() {
   runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 GoRouter _router = GoRouter(
