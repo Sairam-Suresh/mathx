@@ -23,59 +23,25 @@ GoRouter _router = GoRouter(
           routes: [
             GoRoute(
               path: "view/:note", // Use UUID Here
-              pageBuilder: (context, state) {
-                var comingFromNotesPage = (GoRouter.of(context)
-                        .routerDelegate
-                        .currentConfiguration
-                        .matches
-                        .map((e) => e.matchedLocation)
-                        .where((element) => element == "/notes")
-                        .toList())
-                    .isNotEmpty;
-
-                Widget child = NoteView(
-                  uuid: state.pathParameters["note"]!,
-                );
-
-                return (!comingFromNotesPage)
-                    ? CustomTransitionPage(
-                        child: child,
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) =>
-                                FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        ),
-                      )
-                    : MaterialPage(child: child);
-              },
+              pageBuilder: (context, state) => MaterialPage(
+                  child: NoteView(
+                uuid: state.pathParameters["note"]!,
+              )),
             ),
             GoRoute(
               path: "edit/:note",
               pageBuilder: (context, state) {
-                var comingFromNotesPage = (GoRouter.of(context)
-                        .routerDelegate
-                        .currentConfiguration
-                        .matches
-                        .map((e) => e.matchedLocation)
-                        .where((element) => element == "/notes")
-                        .toList())
-                    .isNotEmpty;
+                Widget child = NoteEditor(uuid: state.pathParameters["note"]!);
 
-                Widget child =
-                    Scaffold(body: Text(state.pathParameters["note"]!));
-
-                return (!comingFromNotesPage)
-                    ? CustomTransitionPage(
-                        child: child,
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) =>
-                                FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        ),
-                      )
-                    : MaterialPage(child: child);
+                return CustomTransitionPage(
+                  child: child,
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) =>
+                          FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
               },
             )
           ]),
