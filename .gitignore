@@ -47,3 +47,4 @@ app.*.map.json
 /lib/logic/data_storage/database.g.dart
 /lib/logic/riverpods/db_riverpod.g.dart
 /lib/logic/riverpods/notes_riverpod.g.dart
+/lib/logic/data_storage/tables/note.freezed.dart
