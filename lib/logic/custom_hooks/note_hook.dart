@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -22,6 +24,7 @@ class _ObtainNote extends Hook<MathNote?> {
 
 class _TimeAliveState extends HookState<MathNote?, _ObtainNote> {
   MathNote? returnedNote;
+  StreamSubscription? noteSub;
 
   @override
   void initHook() {
@@ -32,7 +35,7 @@ class _TimeAliveState extends HookState<MathNote?, _ObtainNote> {
       setState(() {});
     });
     if (hook.watch) {
-      hook.ref
+      noteSub = hook.ref
           .read(notesRiverpodProvider.notifier)
           .watchNoteEntryByUUID(hook.uuid)
           .watchSingle()
@@ -48,6 +51,7 @@ class _TimeAliveState extends HookState<MathNote?, _ObtainNote> {
 
   @override
   void dispose() {
+    noteSub?.cancel();
     super.dispose();
   }
 }
