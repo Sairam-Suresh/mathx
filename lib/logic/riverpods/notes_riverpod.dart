@@ -33,4 +33,24 @@ class NotesRiverpod extends _$NotesRiverpod {
 
     context?.go("/notes/view/$uuidOfNewNote");
   }
+
+  Future<MathNote> obtainNoteByUUID(String uuid) {
+    var db = ref.read(databaseRiverpodProvider);
+
+    return (db.select(db.mathNotes)..where((tbl) => tbl.uuid.equals(uuid)))
+        .getSingle();
+  }
+
+  Future<void> updateNoteEntryInDb(MathNote note) async {
+    var db = ref.read(databaseRiverpodProvider);
+
+    await (db.update(db.mathNotes)..where((t) => t.uuid.equals(note.uuid)))
+        .replace(MathNotesCompanion(
+            name: Value(note.name),
+            content: Value(note.content),
+            renderMath: Value(note.renderMath),
+            lastModifiedDate: Value(DateTime.now())));
+
+    ref.invalidateSelf();
+  }
 }
