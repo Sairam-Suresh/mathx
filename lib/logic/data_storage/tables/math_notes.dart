@@ -11,6 +11,8 @@ part 'math_notes.freezed.dart';
 class MathNotes extends Table {
   IntColumn get id => integer().autoIncrement()();
 
+  // We use a special UUID instead of the actual ID since it would make it more
+  // complicated to attempt to use the ID with a Frozen class.
   TextColumn get uuid =>
       text().withDefault(Constant(const UuidV1().generate().toString()))();
   TextColumn get name => text()();
