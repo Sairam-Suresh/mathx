@@ -49,7 +49,7 @@ class Notes extends HookConsumerWidget {
                   children: value.map((e) => NoteListTile(note: e)).toList(),
                 ),
               AsyncError(:final error) => Text(error.toString()),
-              _ => const CircularProgressIndicator(),
+              _ => const Center(child: CircularProgressIndicator()),
             })
           ],
         ),
