@@ -53,4 +53,10 @@ class NotesRiverpod extends _$NotesRiverpod {
 
     ref.invalidateSelf();
   }
+
+  SingleSelectable<MathNote> watchNoteEntryByUUID(String uuid) {
+    var db = ref.read(databaseRiverpodProvider);
+
+    return db.select(db.mathNotes)..where((t) => t.uuid.equals(uuid));
+  }
 }
