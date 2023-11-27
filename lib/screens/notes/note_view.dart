@@ -10,7 +10,7 @@ class NoteView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var note = useGetNote(ref, uuid);
+    var note = useGetNote(ref, uuid, shouldWatch: true);
 
     return Scaffold(
         floatingActionButton: FloatingActionButton(
