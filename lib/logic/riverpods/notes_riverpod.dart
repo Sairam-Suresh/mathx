@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mathx/logic/data_storage/database.dart';
-import 'package:mathx/logic/data_storage/tables/note.dart';
+import 'package:mathx/logic/data_storage/tables/math_notes.dart';
 import 'package:mathx/logic/riverpods/db_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -12,7 +12,7 @@ part 'notes_riverpod.g.dart';
 @Riverpod(keepAlive: true)
 class NotesRiverpod extends _$NotesRiverpod {
   @override
-  FutureOr<List<Note>> build() async {
+  FutureOr<List<MathNote>> build() async {
     var db = ref.read(databaseRiverpodProvider);
 
     return db.select(db.mathNotes).get();

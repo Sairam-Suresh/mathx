@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mathx/logic/data_storage/tables/note.dart';
+import 'package:mathx/logic/data_storage/tables/math_notes.dart';
 import 'package:mathx/logic/riverpods/notes_riverpod.dart';
 
 class NoteView extends HookConsumerWidget {
@@ -11,7 +11,7 @@ class NoteView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var note = useState<Note?>(null);
+    var note = useState<MathNote?>(null);
 
     useEffect(() {
       (ref.read(notesRiverpodProvider.notifier).obtainNoteByUUID(uuid))

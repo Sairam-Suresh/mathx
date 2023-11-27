@@ -1,10 +1,13 @@
 import 'dart:convert';
 
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide JsonKey;
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v1.dart';
 
-@UseRowClass(Note)
+part 'math_notes.freezed.dart';
+
+@UseRowClass(MathNote)
 class MathNotes extends Table {
   IntColumn get id => integer().autoIncrement()();
 
@@ -18,25 +21,21 @@ class MathNotes extends Table {
 }
 
 // Custom row class for the Notes table
-class Note {
-  final String uuid;
-  final String name;
-  final String content;
-  final DateTime lastModifiedDate;
-  final bool renderMath;
 
-  Note(
-      {required this.uuid,
-      required this.name,
-      required this.content,
-      required this.lastModifiedDate,
-      required this.renderMath});
+@freezed
+class MathNote with _$MathNote {
+  factory MathNote(
+      {required String uuid,
+      required String name,
+      required String content,
+      required DateTime lastModifiedDate,
+      required bool renderMath}) = _MathNote;
 
-  factory Note.fromDeepLink(Uri uri) {
+  factory MathNote.fromDeepLink(Uri uri) {
     var decodedData = utf8.decode(base64Decode(uri.queryParameters["source"]!));
     var extractedData = decodedData.split(" ␢␆␝⎠⎡⍰⎀ ");
 
-    return Note(
+    return MathNote(
         uuid: const Uuid().v1().toString(),
         name: extractedData[0],
         content: extractedData[1].replaceAll("~", "~~"),
