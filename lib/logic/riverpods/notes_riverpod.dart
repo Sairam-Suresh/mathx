@@ -45,7 +45,7 @@ class NotesRiverpod extends _$NotesRiverpod {
     var db = ref.read(databaseRiverpodProvider);
 
     await (db.update(db.mathNotes)..where((t) => t.uuid.equals(note.uuid)))
-        .replace(MathNotesCompanion(
+        .write(MathNotesCompanion(
             name: Value(note.name),
             content: Value(note.content),
             renderMath: Value(note.renderMath),
