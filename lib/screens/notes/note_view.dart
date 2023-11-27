@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mathx/logic/data_storage/tables/math_notes.dart';
-import 'package:mathx/logic/riverpods/notes_riverpod.dart';
+import 'package:mathx/logic/custom_hooks/note_hook.dart';
 
 class NoteView extends HookConsumerWidget {
   const NoteView({super.key, required this.uuid});
@@ -11,26 +10,24 @@ class NoteView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var note = useState<MathNote?>(null);
-
-    useEffect(() {
-      (ref.read(notesRiverpodProvider.notifier).obtainNoteByUUID(uuid))
-          .then((value) {
-        note.value = value;
-      });
-
-      return null;
-    }, []);
+    var note = useGetNote(ref, uuid);
 
     return Scaffold(
-        appBar: (note.value != null)
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            context.push("/notes/edit/$uuid");
+          },
+          child: const Icon(Icons.edit),
+        ),
+        appBar: (note != null)
             ? AppBar(
-                title: Text(note.value!.name),
+                title: Text(note.name),
               )
             : null,
-        body: (note.value != null)
-            ? const Center(
-                child: Text("Amongus"),
+        body: (note != null)
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: SingleChildScrollView(child: Text(note.content)),
               )
             : const Center(
                 child: CircularProgressIndicator(),
