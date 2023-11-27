@@ -23,7 +23,60 @@ GoRouter _router = GoRouter(
           routes: [
             GoRoute(
               path: "view/:note", // Use UUID Here
-              builder: (context, state) => NoteViewAndEditor(),
+              pageBuilder: (context, state) {
+                var comingFromNotesPage = (GoRouter.of(context)
+                        .routerDelegate
+                        .currentConfiguration
+                        .matches
+                        .map((e) => e.matchedLocation)
+                        .where((element) => element == "/notes")
+                        .toList())
+                    .isNotEmpty;
+
+                Widget child = NoteView(
+                  uuid: state.pathParameters["note"]!,
+                );
+
+                return (!comingFromNotesPage)
+                    ? CustomTransitionPage(
+                        child: child,
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) =>
+                                FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                      )
+                    : MaterialPage(child: child);
+              },
+            ),
+            GoRoute(
+              path: "edit/:note",
+              pageBuilder: (context, state) {
+                var comingFromNotesPage = (GoRouter.of(context)
+                        .routerDelegate
+                        .currentConfiguration
+                        .matches
+                        .map((e) => e.matchedLocation)
+                        .where((element) => element == "/notes")
+                        .toList())
+                    .isNotEmpty;
+
+                Widget child =
+                    Scaffold(body: Text(state.pathParameters["note"]!));
+
+                return (!comingFromNotesPage)
+                    ? CustomTransitionPage(
+                        child: child,
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) =>
+                                FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                      )
+                    : MaterialPage(child: child);
+              },
             )
           ]),
       GoRoute(
