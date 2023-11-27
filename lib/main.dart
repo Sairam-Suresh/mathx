@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mathx/screens/calculators/main_calculator.dart';
@@ -71,8 +72,13 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.deepPurple, brightness: Brightness.dark),
           useMaterial3: true,
+          primaryColor: Colors.deepPurple,
+          highlightColor: Colors.deepPurple,
           brightness: Brightness.dark),
       routerConfig: _router,
+      localizationsDelegates: const [
+        ...FlutterQuillLocalizations.localizationsDelegates
+      ],
     );
   }
 }

@@ -60,5 +60,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- gal: Required -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>We need add only access to save your media.</string>
+    <!-- gal: Required -->
+
+    <!-- gal: Required for ios < 14 or saving to album -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to save your media.</string>
+    <!-- gal: Required for ios < 14 or saving to album -->
+
+    <key>NSCameraUsageDescription</key>
+    <string>We need access to your camera so that you can insert images with your camera</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need access to your microphone so that you can insert videos.</string>
 </dict>
 </plist>

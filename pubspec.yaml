@@ -47,6 +47,8 @@ dependencies:
   freezed: ^2.4.5
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
+  flutter_quill: ^8.6.3
+  flutter_quill_extensions: ^0.7.1
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +66,7 @@ dev_dependencies:
   custom_lint: ^0.5.6
   riverpod_lint: ^2.3.4
   json_serializable: ^6.7.1
+  rename: ^3.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
