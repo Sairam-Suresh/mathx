@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart' hide JsonKey;
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mathx/logic/delta_md_converters/delta_md_converter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v1.dart';
 
@@ -43,5 +44,11 @@ class MathNote with _$MathNote {
         content: extractedData[1].replaceAll("~", "~~"),
         renderMath: extractedData[2] == "true" ? true : false,
         lastModifiedDate: DateTime.now());
+  }
+}
+
+extension ToDeepLink on MathNote {
+  String toDeepLink() {
+    return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${CustomDeltaMarkdownEncoder().convert(content)} ␢␆␝⎠⎡⍰⎀ $renderMath}"))}";
   }
 }
