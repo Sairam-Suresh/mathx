@@ -6,6 +6,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mathx/logic/custom_embed_quill_blocks/quill_math_block.dart';
 import 'package:mathx/logic/custom_hooks/note_hook.dart';
 import 'package:mathx/logic/custom_hooks/quill_controller_hook.dart';
 
@@ -20,7 +21,7 @@ class NoteView extends HookConsumerWidget {
     var quillController = useQuillController(null);
 
     useEffect(() {
-      if (note != null) {
+      if (note != null && note.content != "") {
         quillController.clear();
         quillController.compose(
             Delta.fromJson(jsonDecode(note.content)),
@@ -57,7 +58,10 @@ class NoteView extends HookConsumerWidget {
                       expands: true,
                       readOnly: true,
                       showCursor: false,
-                      embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                      embedBuilders: [
+                        ...FlutterQuillEmbeds.editorBuilders(),
+                        const QuillEditorFormulaEmbedBuilder()
+                      ],
                     ),
                   ),
                 ),
