@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart'
+    hide QuillToolbarFormulaButton;
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mathx/logic/custom_embed_quill_blocks/quill_math_block.dart';
 import 'package:mathx/logic/custom_hooks/note_hook.dart';
 import 'package:mathx/logic/custom_hooks/quill_controller_hook.dart';
 import 'package:mathx/logic/data_storage/tables/math_notes.dart';
@@ -45,7 +47,7 @@ class NoteEditor extends HookConsumerWidget {
     var quillController = useQuillController(null);
 
     useEffect(() {
-      if (note != null) {
+      if (note != null && note.content != "") {
         quillController.clear();
         quillController.compose(
             Delta.fromJson(jsonDecode(note.content)),
@@ -76,66 +78,78 @@ class NoteEditor extends HookConsumerWidget {
     }, [newTitle.value, newContent.value, newRenderMath.value]);
 
     return (note != null)
-        ? Scaffold(
-            appBar: AppBar(
-              title: IntrinsicWidth(
-                child: EditableText(
-                  backgroundCursorColor: Theme.of(context).primaryColor,
-                  onChanged: (newText) {
-                    newTitle.value = newText;
-                  },
-                  controller: titleController,
-                  focusNode: titleFocusNode,
-                  style: TextStyle(
-                      fontSize:
-                          Theme.of(context).textTheme.titleLarge?.fontSize),
-                  cursorColor: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-                ),
+        ? QuillProvider(
+            configurations: QuillConfigurations(
+              controller: quillController,
+              sharedConfigurations: const QuillSharedConfigurations(
+                locale: Locale('en'),
               ),
-              actions: [
-                IconButton(
-                    onPressed: () {
-                      if (newNote.value != null) {
-                        ref
-                            .read(notesRiverpodProvider.notifier)
-                            .updateNoteEntryInDb(newNote.value!);
-                      }
-                      context.pop();
-                    },
-                    icon: const Icon(Icons.check))
-              ],
             ),
-            body: QuillProvider(
-              configurations: QuillConfigurations(
-                controller: quillController,
-                sharedConfigurations: const QuillSharedConfigurations(
-                  locale: Locale('en'),
-                ),
-              ),
-              child: Column(
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: QuillToolbar(
-                      configurations: QuillToolbarConfigurations(
-                        embedButtons: FlutterQuillEmbeds.toolbarButtons(),
-                      ),
+            child: Scaffold(
+                appBar: AppBar(
+                  title: IntrinsicWidth(
+                    child: EditableText(
+                      backgroundCursorColor: Theme.of(context).primaryColor,
+                      onChanged: (newText) {
+                        newTitle.value = newText;
+                      },
+                      controller: titleController,
+                      focusNode: titleFocusNode,
+                      style: TextStyle(
+                          fontSize:
+                              Theme.of(context).textTheme.titleLarge?.fontSize),
+                      cursorColor:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
                     ),
                   ),
-                  Expanded(
-                      child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: QuillEditor.basic(
-                      configurations: QuillEditorConfigurations(
-                        embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                  actions: [
+                    IconButton(
+                        onPressed: () {
+                          if (newNote.value != null) {
+                            ref
+                                .read(notesRiverpodProvider.notifier)
+                                .updateNoteEntryInDb(newNote.value!);
+                          }
+                          context.pop();
+                        },
+                        icon: const Icon(Icons.check))
+                  ],
+                ),
+                body: Column(
+                  children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: QuillToolbar(
+                        configurations: QuillToolbarConfigurations(
+                          embedButtons: [
+                            ...FlutterQuillEmbeds.toolbarButtons(),
+                            (controller, toolbarIconSize, iconTheme,
+                                    dialogTheme) =>
+                                QuillToolbarFormulaButton(
+                                    controller: quillController,
+                                    options:
+                                        const QuillToolbarFormulaButtonOptions())
+                          ],
+                        ),
                       ),
                     ),
-                  ))
-                ],
-              ),
-            ))
+                    Expanded(
+                        child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: QuillEditor.basic(
+                        configurations: QuillEditorConfigurations(
+                          embedBuilders: [
+                            ...FlutterQuillEmbeds.editorBuilders(),
+                            const QuillEditorFormulaEmbedBuilder(),
+                          ],
+                        ),
+                      ),
+                    ))
+                  ],
+                )),
+          )
         : const Scaffold(
             body: Center(
             child: CircularProgressIndicator(),
