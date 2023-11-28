@@ -52,6 +52,7 @@ dependencies:
   delta_markdown_converter: ^0.0.2
   math_keyboard: ^0.2.1
   flutter_math_fork: ^0.7.2
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:
