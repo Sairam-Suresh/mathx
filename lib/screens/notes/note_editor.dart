@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mathx/logic/custom_hooks/note_hook.dart';
+import 'package:mathx/logic/custom_hooks/quill_controller_hook.dart';
 import 'package:mathx/logic/data_storage/tables/math_notes.dart';
 import 'package:mathx/logic/riverpods/notes_riverpod.dart';
 
@@ -36,6 +41,28 @@ class NoteEditor extends HookConsumerWidget {
       }
       return null;
     }, [note]);
+
+    var quillController = useQuillController(null);
+
+    useEffect(() {
+      if (note != null) {
+        quillController.clear();
+        quillController.compose(
+            Delta.fromJson(jsonDecode(note.content)),
+            const TextSelection(baseOffset: 0, extentOffset: 0),
+            ChangeSource.local);
+      }
+      return null;
+    }, [note]);
+
+    useEffect(() {
+      quillController.changes.listen((event) {
+        newContent.value =
+            jsonEncode(quillController.document.toDelta().toJson());
+      });
+
+      return null;
+    }, []);
 
     useEffect(() {
       newNote.value = MathNote(
@@ -80,7 +107,35 @@ class NoteEditor extends HookConsumerWidget {
                     icon: const Icon(Icons.check))
               ],
             ),
-            body: Text(uuid))
+            body: QuillProvider(
+              configurations: QuillConfigurations(
+                controller: quillController,
+                sharedConfigurations: const QuillSharedConfigurations(
+                  locale: Locale('en'),
+                ),
+              ),
+              child: Column(
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: QuillToolbar(
+                      configurations: QuillToolbarConfigurations(
+                        embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: QuillEditor.basic(
+                      configurations: QuillEditorConfigurations(
+                        embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                      ),
+                    ),
+                  ))
+                ],
+              ),
+            ))
         : const Scaffold(
             body: Center(
             child: CircularProgressIndicator(),
