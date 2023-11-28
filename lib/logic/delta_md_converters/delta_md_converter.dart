@@ -160,6 +160,9 @@ class CustomDeltaMarkdownEncoder extends Converter<String, String> {
     } else if (embed.type == 'divider') {
       _writeEmbedTag(lineBuffer, embed);
       _writeEmbedTag(lineBuffer, embed, close: true);
+    } else if (embed.type == 'formula') {
+      _writeEmbedTag(lineBuffer, embed);
+      _writeEmbedTag(lineBuffer, embed, close: true);
     }
   }
 
@@ -257,6 +260,7 @@ class CustomDeltaMarkdownEncoder extends Converter<String, String> {
   }) {
     const kImageType = 'image';
     const kDividerType = 'divider';
+    const kFormulaType = 'formula';
 
     if (embed.type == kImageType) {
       if (close) {
@@ -266,6 +270,12 @@ class CustomDeltaMarkdownEncoder extends Converter<String, String> {
       }
     } else if (embed.type == kDividerType && close) {
       buffer.write('\n---\n\n');
+    } else if (embed.type == kFormulaType) {
+      if (close) {
+        buffer.write("${embed.data}\$");
+      } else {
+        buffer.write("\$");
+      }
     }
   }
 }
