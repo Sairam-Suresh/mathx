@@ -1,8 +1,18 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:delta_markdown_converter/src/ast.dart' as ast;
+import 'package:delta_markdown_converter/src/document.dart';
 import 'package:flutter_quill/flutter_quill.dart'
-    show Attribute, AttributeScope, BlockEmbed, Delta, DeltaIterator, Style;
+    show
+        Attribute,
+        AttributeScope,
+        BlockEmbed,
+        Delta,
+        DeltaIterator,
+        LinkAttribute,
+        Style;
 
 class CustomDeltaMarkdownEncoder extends Converter<String, String> {
   static const _lineFeedAsciiCode = 0x0A;
@@ -278,4 +288,206 @@ class CustomDeltaMarkdownEncoder extends Converter<String, String> {
       }
     }
   }
+}
+
+class CustomDeltaMarkdownDecoder extends Converter<String, String> {
+  @override
+  String convert(String input) {
+    final lines = input.replaceAll('\r\n', '\n').split('\n');
+
+    final markdownDocument = Document().parseLines(lines);
+
+    return jsonEncode(_DeltaVisitor().convert(markdownDocument).toJson());
+  }
+}
+
+class _DeltaVisitor implements ast.NodeVisitor {
+  static final _blockTags =
+      RegExp('h1|h2|h3|h4|h5|h6|hr|pre|ul|ol|blockquote|p|pre|formula');
+
+  static final _embedTags = RegExp('hr|img|formula');
+
+  late Delta delta;
+
+  late Queue<Attribute> activeInlineAttributes;
+  Attribute? activeBlockAttribute;
+  late Set<String> uniqueIds;
+
+  ast.Element? previousElement;
+  late ast.Element previousToplevelElement;
+
+  Delta convert(List<ast.Node> nodes) {
+    delta = Delta();
+    activeInlineAttributes = Queue<Attribute>();
+    uniqueIds = <String>{};
+
+    for (final node in nodes) {
+      node.accept(this);
+    }
+
+    // Ensure the delta ends with a newline.
+    if (delta.length > 0 && delta.last.value != '\n') {
+      delta.insert('\n', activeBlockAttribute?.toJson());
+    }
+
+    return delta;
+  }
+
+  @override
+  void visitText(ast.Text text) {
+    final str = text.text;
+
+    final attributes = <String, dynamic>{};
+    for (final attr in activeInlineAttributes) {
+      attributes.addAll(attr.toJson());
+    }
+
+    var newlineIndex = str.indexOf('\n');
+    var startIndex = 0;
+    while (newlineIndex != -1) {
+      final previousText = str.substring(startIndex, newlineIndex);
+      if (previousText.isNotEmpty) {
+        delta.insert(previousText, attributes.isNotEmpty ? attributes : null);
+      }
+      delta.insert('\n', activeBlockAttribute?.toJson());
+
+      startIndex = newlineIndex + 1;
+      newlineIndex = str.indexOf('\n', newlineIndex + 1);
+    }
+
+    if (startIndex < str.length) {
+      final lastStr = str.substring(startIndex);
+      delta.insert(lastStr, attributes.isNotEmpty ? attributes : null);
+    }
+  }
+
+  @override
+  bool visitElementBefore(ast.Element element) {
+    final attr = _tagToAttribute(element);
+
+    if (delta.isNotEmpty && _blockTags.firstMatch(element.tag) != null) {
+      if (element.isToplevel) {
+        if (previousToplevelElement.tag != 'ul' &&
+            previousToplevelElement.tag != 'ol' &&
+            previousToplevelElement.tag != 'pre' &&
+            previousToplevelElement.tag != 'hr') {
+          delta.insert('\n', activeBlockAttribute?.toJson());
+        }
+      } else if (element.tag == 'p' &&
+          previousElement != null &&
+          !previousElement!.isToplevel &&
+          !previousElement!.children!.contains(element)) {
+        delta
+          ..insert('\n', activeBlockAttribute?.toJson())
+          ..insert('\n', activeBlockAttribute?.toJson());
+      }
+    }
+
+    if (element.isToplevel && element.tag != 'hr') {
+      activeBlockAttribute = attr;
+    }
+
+    if (_embedTags.firstMatch(element.tag) != null) {
+      if (element.tag == 'formula') {
+        delta.insert({"formula": ""});
+      } else {
+        delta.insert(attr!.toJson());
+      }
+    } else if (_blockTags.firstMatch(element.tag) == null && attr != null) {
+      activeInlineAttributes.addLast(attr);
+    }
+
+    previousElement = element;
+    if (element.isToplevel) {
+      previousToplevelElement = element;
+    }
+
+    if (element.isEmpty) {
+      if (element.tag == 'br') {
+        delta.insert('\n');
+      }
+
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @override
+  void visitElementAfter(ast.Element element) {
+    if (element.tag == 'li' &&
+        (previousToplevelElement.tag == 'ol' ||
+            previousToplevelElement.tag == 'ul')) {
+      delta.insert('\n', activeBlockAttribute?.toJson());
+    }
+
+    final attr = _tagToAttribute(element);
+    if (attr == null || !attr.isInline || activeInlineAttributes.last != attr) {
+      return;
+    }
+    activeInlineAttributes.removeLast();
+
+    previousElement = element;
+  }
+
+  String uniquifyId(String id) {
+    if (!uniqueIds.contains(id)) {
+      uniqueIds.add(id);
+      return id;
+    }
+
+    var suffix = 2;
+    var suffixedId = '$id-$suffix';
+    while (uniqueIds.contains(suffixedId)) {
+      suffixedId = '$id-${suffix++}';
+    }
+    uniqueIds.add(suffixedId);
+    return suffixedId;
+  }
+
+  Attribute? _tagToAttribute(ast.Element el) {
+    if (el.tag == 'formula') {
+      return Attribute.fromKeyValue("formula", "");
+    }
+
+    switch (el.tag) {
+      case 'em':
+        return Attribute.italic;
+      case 'strong':
+        return Attribute.bold;
+      case 'ul':
+        return Attribute.ul;
+      case 'ol':
+        return Attribute.ol;
+      case 'pre':
+        return Attribute.codeBlock;
+      case 'blockquote':
+        return Attribute.blockQuote;
+      case 'h1':
+        return Attribute.h1;
+      case 'h2':
+        return Attribute.h2;
+      case 'h3':
+        return Attribute.h3;
+      case 'a':
+        final href = el.attributes['href'];
+        return LinkAttribute(href);
+      case 'img':
+        final href = el.attributes['src'];
+        return ImageAttribute(href);
+      case 'hr':
+        return const DividerAttribute();
+    }
+
+    return null;
+  }
+}
+
+class ImageAttribute extends Attribute<String?> {
+  const ImageAttribute(String? val)
+      : super('image', AttributeScope.embeds, val);
+}
+
+class DividerAttribute extends Attribute<String?> {
+  const DividerAttribute() : super('divider', AttributeScope.embeds, 'hr');
 }
