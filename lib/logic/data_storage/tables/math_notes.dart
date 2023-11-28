@@ -38,17 +38,32 @@ class MathNote with _$MathNote {
     var decodedData = utf8.decode(base64Decode(uri.queryParameters["source"]!));
     var extractedData = decodedData.split(" ␢␆␝⎠⎡⍰⎀ ");
 
+    if (extractedData.length == 4) {
+      return MathNote(
+          uuid: const Uuid().v1().toString(),
+          name: extractedData[0],
+          content: jsonDecode(extractedData[3]),
+          renderMath: extractedData[2] == "true" ? true : false,
+          lastModifiedDate: DateTime.now());
+    }
+
     return MathNote(
         uuid: const Uuid().v1().toString(),
         name: extractedData[0],
-        content: extractedData[1].replaceAll("~", "~~"),
+        content: CustomDeltaMarkdownDecoder()
+            .convert(extractedData[1].replaceAll("~", "~~")),
         renderMath: extractedData[2] == "true" ? true : false,
         lastModifiedDate: DateTime.now());
   }
 }
 
-extension ToDeepLink on MathNote {
-  String toDeepLink() {
-    return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${CustomDeltaMarkdownEncoder().convert(content)} ␢␆␝⎠⎡⍰⎀ $renderMath}"))}";
+extension DeepLinkUtils on MathNote {
+  String contentToMarkDown() => CustomDeltaMarkdownEncoder().convert(content);
+
+  String toMDDeepLink() {
+    return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath}"))}";
   }
+
+  String toDeepLink() =>
+      "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath  ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)}}"))}";
 }
