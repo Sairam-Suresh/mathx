@@ -233,7 +233,8 @@ class CustomDeltaMarkdownEncoder extends Converter<String, String> {
     } else if (attribute == Attribute.codeBlock) {
       buffer.write(!close ? '```\n' : '\n```');
     } else {
-      throw ArgumentError('Cannot handle $attribute');
+      // TODO: Try to warn the user about certain data losses which might happen during conversion
+      // throw ArgumentError('Cannot handle $attribute');
     }
   }
 
@@ -258,6 +259,10 @@ class CustomDeltaMarkdownEncoder extends Converter<String, String> {
       buffer.write('## ');
     } else if (block.key == Attribute.h3.key && block.value == 3) {
       buffer.write('### ');
+    } else if (block.key == Attribute.list.key && block.value == "checked") {
+      buffer.write('- [x] ');
+    } else if (block.key == Attribute.list.key && block.value == "unchecked") {
+      buffer.write('- '); // For some reason there is already a "[]" there
     } else {
       throw ArgumentError('Cannot handle block $block');
     }
