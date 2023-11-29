@@ -116,13 +116,11 @@ class QuillToolbarFormulaButton extends StatelessWidget {
     var text = "";
     var temp = '';
 
-    final mathController = MathFieldEditingController();
-
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text(
-          "Modify Equation",
+          "New Equation",
           style: TextStyle(fontSize: 20),
         ),
         content: Material(
@@ -131,7 +129,6 @@ class QuillToolbarFormulaButton extends StatelessWidget {
               if (hasFocus) {
                 // If the MathField is tapped, hides the built in keyboard
                 SystemChannels.textInput.invokeMethod('TextInput.hide');
-                debugPrint(mathController.currentEditingValue());
               }
             },
             child: MathField(
@@ -173,22 +170,57 @@ class QuillEditorFormulaEmbedBuilder extends EmbedBuilder {
     bool inline,
     TextStyle textStyle,
   ) {
-    // throw UnsupportedError(
-    //   'The formula EmbedBuilder is not supported for now.',
-    // );
-    // assert(!kIsWeb, 'Please provide formula EmbedBuilder for Web');
-
-    final mathController = MathFieldEditingController();
+    var text = "";
+    var temp = '';
 
     var value = node.value.data;
 
-    return Focus(
-      onFocusChange: (hasFocus) {
-        if (hasFocus) {
-          // If the MathField is tapped, hides the built in keyboard
-          SystemChannels.textInput.invokeMethod('TextInput.hide');
-          debugPrint(mathController.currentEditingValue());
-        }
+    return GestureDetector(
+      onTap: () {
+        // If the MathField is tapped, hides the built in keyboard
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text(
+              "Modify Equation",
+              style: TextStyle(fontSize: 20),
+            ),
+            content: Material(
+              child: Focus(
+                onFocusChange: (hasFocus) {
+                  if (hasFocus) {
+                    // If the MathField is tapped, hides the built in keyboard
+                    SystemChannels.textInput.invokeMethod('TextInput.hide');
+                  }
+                },
+                child: MathField(
+                    onChanged: (val) {
+                      temp = val;
+                    },
+                    decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              text = temp;
+                              final index = controller.selection.baseOffset;
+                              final length =
+                                  controller.selection.extentOffset - index;
+
+                              if (text == "") {
+                                context.pop();
+                                return;
+                              }
+
+                              controller.replaceText(
+                                  index - 1, 1, BlockEmbed.formula(text), null);
+
+                              context.pop();
+                            },
+                            icon: const Icon(Icons.check)))),
+              ),
+            ),
+          ),
+        );
       },
       child: Math.tex(
         value,
