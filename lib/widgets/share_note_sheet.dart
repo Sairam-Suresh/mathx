@@ -5,14 +5,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> shareNote(BuildContext context, MathNote note) {
-  var noteDeepLink = note.toDeepLink();
-  var noteDeltaDeepLink = note.toDeltaDeepLink();
+  var noteDeepLink = note.toDeepLink(DeepLinkType.combined);
 
-  print(note.toMDDeepLink());
-  print(note.content);
-
-  var exceedingQRLimits =
-      !(noteDeepLink.length < 2592 && noteDeltaDeepLink.length < 2592);
+  var exceedingQRLimits = !(noteDeepLink.length < 2592);
 
   return showModalBottomSheet(
     showDragHandle: false,
@@ -77,7 +72,8 @@ Future<void> shareNote(BuildContext context, MathNote note) {
                                           child: QrImageView(
                                             backgroundColor: Colors.white,
                                             data: useCompatMode
-                                                ? note.toMDDeepLink()
+                                                ? note
+                                                    .toDeepLink(DeepLinkType.md)
                                                 : noteDeepLink,
                                             version: QrVersions.auto,
                                           ),
@@ -151,7 +147,7 @@ Future<void> shareNote(BuildContext context, MathNote note) {
                                 "Use this when sharing to iOS or older versions of the android version of this app."),
                             onTap: () {
                               context.pop();
-                              Share.share(note.toMDDeepLink());
+                              Share.share(note.toDeepLink(DeepLinkType.md));
                             },
                           ),
                         ],

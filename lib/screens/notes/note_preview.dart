@@ -20,7 +20,7 @@ class NotePreview extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var note = useCallback(() => MathNote.fromDeepLink(noteData), []);
+    var note = useCallback(() => MathNote.fromDeepLinkAdaptive(noteData), []);
     var quillController =
         useQuillController(Document.fromJson(jsonDecode(note().content)));
 
