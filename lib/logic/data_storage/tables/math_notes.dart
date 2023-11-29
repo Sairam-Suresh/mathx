@@ -36,7 +36,9 @@ class MathNote with _$MathNote {
       required bool renderMath}) = _MathNote;
 
   factory MathNote.fromDeepLink(Uri uri) {
-    var decodedData = utf8.decode(base64Decode(uri.queryParameters["source"]!));
+    var encoded = uri.queryParameters["source"]!;
+
+    var decodedData = utf8.decode(base64Decode(encoded));
     var extractedData = decodedData.split(" ␢␆␝⎠⎡⍰⎀ ");
 
     if (extractedData.length == 4) {
@@ -55,18 +57,67 @@ class MathNote with _$MathNote {
         renderMath: extractedData[2] == "true" ? true : false,
         lastModifiedDate: DateTime.now());
   }
+
+  factory MathNote.fromDeepLinkNew(Uri uri) {
+    var encoded = uri.queryParameters["source"]!;
+    var decodedData =
+        utf8.decode(base64Decode(Uri.decodeQueryComponent(encoded)));
+
+    var extractedData = decodedData.split(" ␢␆␝⎠⎡⍰⎀ ");
+
+    if (extractedData.length == 4) {
+      return MathNote(
+          uuid: const Uuid().v1().toString(),
+          name: extractedData[0],
+          content: jsonDecode(extractedData[3]),
+          renderMath: extractedData[2] == "true" ? true : false,
+          lastModifiedDate: DateTime.now());
+    }
+
+    return MathNote(
+        uuid: const Uuid().v1().toString(),
+        name: extractedData[0],
+        content: DeltaMarkdownDecoder().convert(extractedData[1]),
+        renderMath: extractedData[2] == "true" ? true : false,
+        lastModifiedDate: DateTime.now());
+  }
+
+  factory MathNote.fromDeepLinkAdaptive(Uri uri) {
+    try {
+      return MathNote.fromDeepLink(uri);
+    } catch (e) {
+      return MathNote.fromDeepLinkNew(uri);
+    }
+  }
 }
 
 extension DeepLinkUtils on MathNote {
   String contentToMarkDown() => DeltaMarkdownEncoder().convert(content);
 
-  String toMDDeepLink() {
-    return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath}"))}";
+  String toDeepLink(DeepLinkType type) {
+    // if (type == DeepLinkType.delta) return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)} ␢␆␝⎠⎡⍰⎀ $renderMath"))}";
+    if (type == DeepLinkType.md) {
+      return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath"))}";
+    }
+
+    return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)}"))}";
   }
 
-  String toDeltaDeepLink() =>
-      "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)} ␢␆␝⎠⎡⍰⎀ $renderMath"))}";
+  String toDeepLinkNew(DeepLinkType type) {
+    final linkString =
+        "mathx:///notes?source=${Uri.encodeQueryComponent(base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)}")))}";
 
-  String toDeepLink() =>
-      "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)}"))}";
+    // if (type == DeepLinkType.delta) return Uri.encodeFull("mathx:///notes?source=${"$name ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)} ␢␆␝⎠⎡⍰⎀ $renderMath"}");
+    if (type == DeepLinkType.md) {
+      return "mathx:///notes?source=${Uri.encodeQueryComponent(base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath")))}";
+    }
+
+    return Uri.encodeFull(linkString);
+  }
+}
+
+enum DeepLinkType {
+  // delta,
+  md,
+  combined
 }
