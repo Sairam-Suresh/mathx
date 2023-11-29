@@ -53,6 +53,9 @@ dependencies:
   math_keyboard: ^0.2.1
   flutter_math_fork: ^0.7.2
   collection: ^1.18.0
+  share_plus: ^7.2.1
+  shared_preferences: ^2.2.2
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
