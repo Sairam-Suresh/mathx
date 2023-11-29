@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:mathx/screens/calculators/main_calculator.dart';
 import 'package:mathx/screens/cheatsheets/cheatsheets.dart';
 import 'package:mathx/screens/notes/note_editor.dart';
+import 'package:mathx/screens/notes/note_preview.dart';
 import 'package:mathx/screens/notes/note_view.dart';
 import 'package:mathx/screens/notes/notes.dart';
 import 'package:mathx/screens/root.dart';
 
 void main() {
-  runApp(const MyApp());
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -20,9 +20,22 @@ GoRouter _router = GoRouter(
     ShellRoute(builder: (context, state, child) => Root(child: child), routes: [
       GoRoute(
           path: "/notes",
+          redirect: (context, state) {
+            return (state.uri.queryParameters["source"] != null &&
+                    state.uri.queryParameters["source"] != "" &&
+                    state.fullPath != null &&
+                    state.fullPath != "/notes/preview")
+                ? "/notes/preview?source=${state.uri.queryParameters["source"]}"
+                : null;
+          },
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: Notes()),
           routes: [
+            GoRoute(
+                path: "preview",
+                pageBuilder: (context, state) => MaterialPage(
+                    child: NotePreview(noteData: state.uri),
+                    fullscreenDialog: true)),
             GoRoute(
               path: "view/:note", // Use UUID Here
               pageBuilder: (context, state) => MaterialPage(
