@@ -50,8 +50,7 @@ class MathNote with _$MathNote {
     return MathNote(
         uuid: const Uuid().v1().toString(),
         name: extractedData[0],
-        content: CustomDeltaMarkdownDecoder()
-            .convert(extractedData[1].replaceAll("~", "~~")),
+        content: CustomDeltaMarkdownDecoder().convert(extractedData[1]),
         renderMath: extractedData[2] == "true" ? true : false,
         lastModifiedDate: DateTime.now());
   }
@@ -64,6 +63,9 @@ extension DeepLinkUtils on MathNote {
     return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath}"))}";
   }
 
+  String toDeltaDeepLink() =>
+      "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)} ␢␆␝⎠⎡⍰⎀ $renderMath"))}";
+
   String toDeepLink() =>
-      "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath  ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)}}"))}";
+      "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${contentToMarkDown()} ␢␆␝⎠⎡⍰⎀ $renderMath ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)}"))}";
 }
