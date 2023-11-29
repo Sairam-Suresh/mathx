@@ -249,14 +249,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
-  delta_markdown_converter:
-    dependency: "direct main"
-    description:
-      name: delta_markdown_converter
-      sha256: "2c28237d31d856f66d86fac2cbb25b7fb99757b5b0ed640c7ba7631d4ba9218e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
   device_info_plus:
     dependency: transitive
     description:
