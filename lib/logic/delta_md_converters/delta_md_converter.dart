@@ -232,6 +232,8 @@ class CustomDeltaMarkdownEncoder extends Converter<String, String> {
       buffer.write(!close ? '[' : '](${attribute.value})');
     } else if (attribute == Attribute.codeBlock) {
       buffer.write(!close ? '```\n' : '\n```');
+    } else if (attribute == Attribute.inlineCode) {
+      buffer.write(!close ? '`\n' : '\n`');
     } else {
       // TODO: Try to warn the user about certain data losses which might happen during conversion
       // throw ArgumentError('Cannot handle $attribute');
