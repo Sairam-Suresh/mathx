@@ -9,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mathx/logic/custom_embed_quill_blocks/quill_math_block.dart';
 import 'package:mathx/logic/custom_hooks/note_hook.dart';
 import 'package:mathx/logic/custom_hooks/quill_controller_hook.dart';
+import 'package:mathx/widgets/share_note_sheet.dart';
 
 class NoteView extends HookConsumerWidget {
   const NoteView({super.key, required this.uuid});
@@ -41,6 +42,13 @@ class NoteView extends HookConsumerWidget {
         appBar: (note != null)
             ? AppBar(
                 title: Text(note.name),
+                actions: [
+                  IconButton(
+                      onPressed: () {
+                        shareNote(context, note);
+                      },
+                      icon: const Icon(Icons.share))
+                ],
               )
             : null,
         body: (note != null)
