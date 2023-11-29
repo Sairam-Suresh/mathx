@@ -203,8 +203,6 @@ class QuillEditorFormulaEmbedBuilder extends EmbedBuilder {
                             onPressed: () {
                               text = temp;
                               final index = controller.selection.baseOffset;
-                              final length =
-                                  controller.selection.extentOffset - index;
 
                               if (text == "") {
                                 context.pop();
