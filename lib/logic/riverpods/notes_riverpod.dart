@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mathx/logic/data_storage/database.dart';
 import 'package:mathx/logic/data_storage/tables/math_notes.dart';
 import 'package:mathx/logic/riverpods/db_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -58,5 +59,21 @@ class NotesRiverpod extends _$NotesRiverpod {
     var db = ref.read(databaseRiverpodProvider);
 
     return db.select(db.mathNotes)..where((t) => t.uuid.equals(uuid));
+  }
+
+  Future saveNoteToDb(MathNote note) async {
+    var db = ref.read(databaseRiverpodProvider);
+
+    print(await getApplicationDocumentsDirectory());
+
+    await db.into(db.mathNotes).insert(MathNotesCompanion(
+          uuid: Value(note.uuid),
+          name: Value(note.name),
+          content: Value(note.content),
+          renderMath: Value(note.renderMath),
+          lastModifiedDate: Value(DateTime.now()),
+        ));
+
+    ref.invalidateSelf();
   }
 }
