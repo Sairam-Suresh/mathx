@@ -42,4 +42,11 @@ class CheatsheetsRiverpod extends _$CheatsheetsRiverpod {
 
     ref.invalidateSelf();
   }
+
+  Future<List<Cheatsheet>> obtainAllLikedCheatsheets() async {
+    var db = ref.read(databaseRiverpodProvider);
+
+    return (db.select(db.cheatsheets)..where((tbl) => tbl.starred.equals(true)))
+        .get();
+  }
 }

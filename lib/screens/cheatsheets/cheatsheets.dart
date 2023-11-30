@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mathx/logic/riverpods/cheatsheets_riverpod.dart';
+import 'package:mathx/widgets/cheatsheet_list_tile.dart';
 
 class FilterState {
   FilterState({required this.filters});
@@ -28,28 +29,6 @@ FilterState reducer(FilterState state, action) {
     return FilterState(filters: state.filters..remove(action.level));
   }
   return state;
-}
-
-Widget cheatsheetIcon(int level) {
-  if (level == 1) {
-    return const Icon(
-      Icons.looks_one_outlined,
-    );
-  } else if (level == 2) {
-    return const Icon(
-      Icons.looks_two_outlined,
-    );
-  } else if (level == 3) {
-    return const Icon(
-      Icons.looks_3_outlined,
-    );
-  } else if (level == 4) {
-    return const Icon(
-      Icons.looks_4_outlined,
-    );
-  } else {
-    throw ArgumentError("You can't have $level as a secondary school level!");
-  }
 }
 
 class Cheatsheets extends HookConsumerWidget {
@@ -97,7 +76,14 @@ class Cheatsheets extends HookConsumerWidget {
                             icon: const Icon(Icons.clear),
                           )
                         ]
-                      : null,
+                      : [
+                          IconButton(
+                            onPressed: () {
+                              context.go("/cheatsheets/starred");
+                            },
+                            icon: const Icon(Icons.stars),
+                          )
+                        ],
                 ),
                 const SizedBox(
                   height: 8,
@@ -143,15 +129,7 @@ class Cheatsheets extends HookConsumerWidget {
                               .map((e) => (!searchTermNotEmpty ||
                                       e.name.toLowerCase().contains(
                                           searchTerm.value.toLowerCase()))
-                                  ? ListTile(
-                                      leading: cheatsheetIcon(e.secondaryLevel),
-                                      title: Text(e.name),
-                                      trailing: const Icon(Icons.chevron_right),
-                                      onTap: () {
-                                        context.go(
-                                            "/cheatsheets/view/${e.name.replaceAll(" ", "_")}");
-                                      },
-                                    )
+                                  ? CheatsheetListTile(sheet: e)
                                   : Container())
                               .toList()),
                     )
@@ -164,15 +142,7 @@ class Cheatsheets extends HookConsumerWidget {
                                     (!searchTermNotEmpty ||
                                         e.name.toLowerCase().contains(
                                             searchTerm.value.toLowerCase())))
-                                ? ListTile(
-                                    leading: cheatsheetIcon(e.secondaryLevel),
-                                    title: Text(e.name),
-                                    trailing: const Icon(Icons.chevron_right),
-                                    onTap: () {
-                                      context.go(
-                                          "/cheatsheets/view/${e.name.replaceAll(" ", "_")}");
-                                    },
-                                  )
+                                ? CheatsheetListTile(sheet: e)
                                 : Container())
                             .toList(),
                       ),
