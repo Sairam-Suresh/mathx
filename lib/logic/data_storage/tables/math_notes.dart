@@ -86,7 +86,11 @@ class MathNote with _$MathNote {
     try {
       return MathNote.fromDeepLink(uri);
     } catch (e) {
-      return MathNote.fromDeepLinkNew(uri);
+      try {
+        return MathNote.fromDeepLinkNew(uri);
+      } catch (e) {
+        throw Exception("FAILURE!!!");
+      }
     }
   }
 }
