@@ -56,6 +56,7 @@ dependencies:
   shared_preferences: ^2.2.2
   qr_flutter: ^4.1.0
   flutter_archive: ^5.0.0
+  pdf_viewer_plugin: ^2.0.1
 
 dev_dependencies:
   flutter_test:
