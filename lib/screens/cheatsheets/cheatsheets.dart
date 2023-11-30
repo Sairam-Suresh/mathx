@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mathx/logic/riverpods/cheatsheets_riverpod.dart';
 
@@ -145,6 +146,11 @@ class Cheatsheets extends HookConsumerWidget {
                                   ? ListTile(
                                       leading: cheatsheetIcon(e.secondaryLevel),
                                       title: Text(e.name),
+                                      trailing: const Icon(Icons.chevron_right),
+                                      onTap: () {
+                                        context.go(
+                                            "/cheatsheets/view/${e.name.replaceAll(" ", "_")}");
+                                      },
                                     )
                                   : Container())
                               .toList()),
@@ -160,7 +166,13 @@ class Cheatsheets extends HookConsumerWidget {
                                             searchTerm.value.toLowerCase())))
                                 ? ListTile(
                                     leading: cheatsheetIcon(e.secondaryLevel),
-                                    title: Text(e.name))
+                                    title: Text(e.name),
+                                    trailing: const Icon(Icons.chevron_right),
+                                    onTap: () {
+                                      context.go(
+                                          "/cheatsheets/view/${e.name.replaceAll(" ", "_")}");
+                                    },
+                                  )
                                 : Container())
                             .toList(),
                       ),

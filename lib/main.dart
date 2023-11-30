@@ -3,6 +3,7 @@ import 'package:flutter_quill/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mathx/screens/calculators/main_calculator.dart';
+import 'package:mathx/screens/cheatsheets/cheatsheet_viewer.dart';
 import 'package:mathx/screens/cheatsheets/cheatsheets.dart';
 import 'package:mathx/screens/notes/note_editor.dart';
 import 'package:mathx/screens/notes/note_preview.dart';
@@ -63,7 +64,13 @@ GoRouter _router = GoRouter(
       GoRoute(
           path: "/cheatsheets",
           pageBuilder: (context, state) =>
-              const NoTransitionPage(child: Cheatsheets())),
+              const NoTransitionPage(child: Cheatsheets()),
+          routes: [
+            GoRoute(
+                path: "view/:cheatsheet",
+                builder: (context, state) => CheatSheetViewer(
+                    noteName: state.pathParameters["cheatsheet"]!))
+          ]),
       GoRoute(
           path: "/calculator",
           pageBuilder: (context, state) =>
