@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:mathx/logic/cheatsheets/cheatsheets_extraction_helper.dart';
+import 'package:mathx/logic/data_storage/tables/cheatsheets.dart';
 import 'package:mathx/logic/data_storage/tables/math_notes.dart';
-import 'package:mathx/screens/cheatsheets/cheatsheets.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/v1.dart';
@@ -17,6 +18,29 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+
+        await batch((batch) {
+          batch.insertAll(
+              cheatsheets,
+              cheatSheetList.map((e) => CheatsheetsCompanion(
+                    name: Value(e.name),
+                    secondaryLevel: Value(e.secondaryLevel),
+                    starred: Value(e.starred),
+                    comingSoon: Value(e.comingSoon),
+                  )));
+        });
+
+        await extractCheatsheets();
+        print(await getApplicationDocumentsDirectory());
+      },
+    );
+  }
 }
 
 LazyDatabase _openConnection() {
