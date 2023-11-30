@@ -48,3 +48,4 @@ app.*.map.json
 /lib/logic/riverpods/db_riverpod.g.dart
 /lib/logic/riverpods/notes_riverpod.g.dart
 /lib/logic/data_storage/tables/math_notes.freezed.dart
+/lib/logic/data_storage/tables/cheatsheets.freezed.dart
