@@ -5,7 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> shareNote(BuildContext context, MathNote note) {
-  var noteDeepLink = note.toDeepLink(DeepLinkType.combined);
+  var noteDeepLink = note.toDeepLinkNew(DeepLinkType.combined);
 
   var exceedingQRLimits = !(noteDeepLink.length < 2592);
 
