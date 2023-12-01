@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -29,6 +30,8 @@ class NoteEditor extends HookConsumerWidget {
     var newContent = useState("");
     var newRenderMath = useState(false);
 
+    var initialisedNewNote = useState(false);
+
     var newNote = useState<MathNote?>(null);
 
     useEffect(() {
@@ -38,6 +41,13 @@ class NoteEditor extends HookConsumerWidget {
         newTitle.value = note.name;
         newContent.value = note.content;
         newRenderMath.value = note.renderMath;
+
+        newNote.value =
+            newNote.value?.copyWith(lastModifiedDate: note.lastModifiedDate) ??
+                note;
+        Future.delayed(Duration(milliseconds: 500), () {
+          initialisedNewNote.value = true;
+        });
       }
       return null;
     }, [note]);
@@ -57,20 +67,24 @@ class NoteEditor extends HookConsumerWidget {
 
     useEffect(() {
       quillController.changes.listen((event) {
-        newContent.value =
-            jsonEncode(quillController.document.toDelta().toJson());
+        if (event.source == ChangeSource.local) {
+          newContent.value =
+              jsonEncode(quillController.document.toDelta().toJson());
+        }
       });
 
       return null;
     }, []);
 
     useEffect(() {
-      newNote.value = MathNote(
-          uuid: uuid,
-          name: newTitle.value,
-          content: newContent.value,
-          lastModifiedDate: DateTime.now(),
-          renderMath: newRenderMath.value);
+      if (initialisedNewNote.value) {
+        newNote.value = MathNote(
+            uuid: uuid,
+            name: newTitle.value,
+            content: newContent.value,
+            lastModifiedDate: DateTime.now(),
+            renderMath: newRenderMath.value);
+      }
 
       return null;
     }, [newTitle.value, newContent.value, newRenderMath.value]);
@@ -106,6 +120,54 @@ class NoteEditor extends HookConsumerWidget {
                     },
                     icon: const Icon(Icons.check))
               ],
+              automaticallyImplyLeading: false,
+              leading: IconButton(
+                onPressed: () {
+                  if (newNote.value?.lastModifiedDate
+                              .compareTo(note.lastModifiedDate) !=
+                          0 &&
+                      newNote.value != null) {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: const Text("Warning"),
+                              content: const Text(
+                                  "Would you like to save your changes?"),
+                              actions: [
+                                FilledButton(
+                                  onPressed: () {
+                                    context.pop();
+                                    context.go(
+                                        "/notes/view/${newNote.value!.uuid}");
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.red),
+                                    foregroundColor:
+                                        MaterialStateProperty.all(Colors.white),
+                                  ),
+                                  child: const Text("No"),
+                                ),
+                                FilledButton(
+                                    onPressed: () {
+                                      ref
+                                          .read(notesRiverpodProvider.notifier)
+                                          .updateNoteEntryInDb(newNote.value!);
+                                      context.pop();
+                                      context.go(
+                                          "/notes/view/${newNote.value!.uuid}");
+                                    },
+                                    child: const Text("Yes")),
+                              ],
+                            ));
+                  } else {
+                    context.go("/notes/view/${note.uuid}");
+                  }
+                },
+                icon: Icon(Platform.isIOS
+                    ? Icons.arrow_back_ios_new
+                    : Icons.arrow_back),
+              ),
             ),
             body: NoteViewOrEditorWidget(quillController: quillController))
         : const Scaffold(
