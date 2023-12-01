@@ -12,6 +12,20 @@ class Root extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var index = useState(0);
 
+    var currentPage =
+        GoRouter.of(context).routeInformationProvider.value.uri.path;
+    switch (currentPage) {
+      case "/notes":
+        index.value = 0;
+        break;
+      case "/cheatsheets":
+        index.value = 1;
+        break;
+      case "/calculator":
+        index.value = 2;
+        break;
+    }
+
     return Scaffold(
       body: child,
       bottomNavigationBar: NavigationBar(
