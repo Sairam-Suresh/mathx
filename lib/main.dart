@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mathx/logic/data_storage/tables/math_notes.dart';
 import 'package:mathx/screens/calculators/main_calculator.dart';
 import 'package:mathx/screens/cheatsheets/cheatsheet_viewer.dart';
 import 'package:mathx/screens/cheatsheets/cheatsheets.dart';
@@ -22,16 +23,30 @@ GoRouter _router = GoRouter(
     ShellRoute(builder: (context, state, child) => Root(child: child), routes: [
       GoRoute(
           path: "/notes",
-          redirect: (context, state) {
-            return (state.uri.queryParameters["source"] != null &&
-                    state.uri.queryParameters["source"] != "" &&
-                    state.fullPath != null &&
-                    state.fullPath != "/notes/preview")
-                ? "/notes/preview?source=${state.uri.queryParameters["source"]}"
-                : null;
+          redirect: (context, state) async {
+            if (state.uri.queryParameters["source"] != null &&
+                state.uri.queryParameters["source"] != "" &&
+                state.fullPath != null &&
+                state.fullPath != "/notes/preview") {
+              // We verify if the note can actually be accessed. If not, show a popup in Notes
+              try {
+                MathNote.fromDeepLinkAdaptive(state.uri);
+              } catch (e) {
+                return "/notes?failure=true";
+              }
+
+              return "/notes/preview?source=${state.uri.queryParameters["source"]}";
+            }
+
+            return null;
           },
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: Notes()),
+          pageBuilder: (context, state) => NoTransitionPage(
+                  child: Notes(
+                failedToObtainNote:
+                    state.uri.queryParameters["failure"] == "true"
+                        ? true
+                        : false,
+              )),
           routes: [
             GoRoute(
                 path: "preview",
@@ -60,7 +75,7 @@ GoRouter _router = GoRouter(
                   ),
                 );
               },
-            )
+            ),
           ]),
       GoRoute(
           path: "/cheatsheets",
