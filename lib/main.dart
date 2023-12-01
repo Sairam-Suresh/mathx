@@ -65,6 +65,12 @@ GoRouter _router = GoRouter(
               pageBuilder: (context, state) {
                 Widget child = NoteEditor(uuid: state.pathParameters["note"]!);
 
+                if (state.uri.queryParameters["new"] == "true") {
+                  return MaterialPage(
+                    child: child,
+                  );
+                }
+
                 return CustomTransitionPage(
                   child: child,
                   transitionsBuilder:

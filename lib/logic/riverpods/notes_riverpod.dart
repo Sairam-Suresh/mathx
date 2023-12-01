@@ -32,7 +32,7 @@ class NotesRiverpod extends _$NotesRiverpod {
 
     ref.invalidateSelf();
 
-    context?.go("/notes/view/$uuidOfNewNote");
+    context?.go("/notes/edit/$uuidOfNewNote?new=true");
   }
 
   Future<MathNote> obtainNoteByUUID(String uuid) {
