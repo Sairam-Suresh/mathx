@@ -117,7 +117,8 @@ class Cheatsheets extends HookConsumerWidget {
           ),
           (cheatsheets.valueOrNull == null)
               ? const Center(child: CircularProgressIndicator())
-              : buildCheatSheetList(cheatSheetList, filter.state, searchTerm)
+              : buildCheatSheetList(
+                  cheatSheetList, filter.state, searchTerm, context)
         ],
       ),
     ));
@@ -125,7 +126,7 @@ class Cheatsheets extends HookConsumerWidget {
 }
 
 Widget buildCheatSheetList(List<Cheatsheet> cheatsheets, FilterState filters,
-    ValueNotifier<String> search) {
+    ValueNotifier<String> search, BuildContext context) {
   final cheatsheetsCopy = cheatsheets.map((e) => e).toList();
 
   if (filters.filters.isNotEmpty) {
@@ -136,6 +137,31 @@ Widget buildCheatSheetList(List<Cheatsheet> cheatsheets, FilterState filters,
   if (search.value.isNotEmpty) {
     cheatsheetsCopy.removeWhere((element) =>
         !(element.name.toLowerCase().contains(search.value.toLowerCase())));
+  }
+
+  if (cheatsheetsCopy.isEmpty) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Spacer(),
+            Text(
+              "We could not find any cheatsheets with your search term and/or filters",
+              style: Theme.of(context).textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const Text(
+              "Try clearing your filters or using another search term",
+              textAlign: TextAlign.center,
+            ),
+            const Spacer()
+          ],
+        ),
+      ),
+    );
   }
 
   return Expanded(
