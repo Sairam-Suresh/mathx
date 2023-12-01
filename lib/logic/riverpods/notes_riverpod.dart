@@ -76,4 +76,13 @@ class NotesRiverpod extends _$NotesRiverpod {
 
     ref.invalidateSelf();
   }
+
+  Future deleteNoteFromDb(MathNote note) async {
+    var db = ref.read(databaseRiverpodProvider);
+
+    await (db.delete(db.mathNotes)..where((tbl) => tbl.uuid.equals(note.uuid)))
+        .go();
+
+    ref.invalidateSelf();
+  }
 }
