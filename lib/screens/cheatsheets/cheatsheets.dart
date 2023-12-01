@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide State;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mathx/logic/data_storage/tables/cheatsheets.dart';
 import 'package:mathx/logic/riverpods/cheatsheets_riverpod.dart';
 import 'package:mathx/widgets/cheatsheet_list_tile.dart';
 
@@ -10,7 +11,7 @@ class FilterState {
   final Set<int> filters;
 }
 
-class FilterAction {}
+class FilterAction {} // This class needs to be extended by the actions
 
 class AddFilterAction extends FilterAction {
   final int level;
@@ -38,13 +39,10 @@ class Cheatsheets extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var searchTerm = useState("");
 
-    var searchTermNotEmpty = searchTerm.value.isNotEmpty;
-
     var filter = useReducer<FilterState, FilterAction>(reducer,
         initialState: FilterState(filters: {}), initialAction: FilterAction());
 
     var cheatsheets = ref.watch(cheatsheetsRiverpodProvider);
-    var anyFilterSelected = filter.state.filters.isNotEmpty;
 
     var searchController = useTextEditingController();
 
@@ -117,38 +115,34 @@ class Cheatsheets extends HookConsumerWidget {
               ],
             ),
           ),
-
-          // TODO: Make this look a bit better
           (cheatsheets.valueOrNull == null)
               ? const Center(child: CircularProgressIndicator())
-              : !anyFilterSelected
-                  ? Expanded(
-                      child: ListView(
-                          shrinkWrap: true,
-                          children: cheatsheets.value!
-                              .map((e) => (!searchTermNotEmpty ||
-                                      e.name.toLowerCase().contains(
-                                          searchTerm.value.toLowerCase()))
-                                  ? CheatsheetListTile(sheet: e)
-                                  : Container())
-                              .toList()),
-                    )
-                  : Expanded(
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: cheatsheets.value!
-                            .map((e) => (filter.state.filters
-                                        .contains(e.secondaryLevel) &&
-                                    (!searchTermNotEmpty ||
-                                        e.name.toLowerCase().contains(
-                                            searchTerm.value.toLowerCase())))
-                                ? CheatsheetListTile(sheet: e)
-                                : Container())
-                            .toList(),
-                      ),
-                    )
+              : buildCheatSheetList(cheatSheetList, filter.state, searchTerm)
         ],
       ),
     ));
   }
+}
+
+Widget buildCheatSheetList(List<Cheatsheet> cheatsheets, FilterState filters,
+    ValueNotifier<String> search) {
+  final cheatsheetsCopy = cheatsheets.map((e) => e).toList();
+
+  if (filters.filters.isNotEmpty) {
+    cheatsheetsCopy.removeWhere(
+        (element) => !(filters.filters.contains(element.secondaryLevel)));
+  }
+
+  if (search.value.isNotEmpty) {
+    cheatsheetsCopy.removeWhere((element) =>
+        !(element.name.toLowerCase().contains(search.value.toLowerCase())));
+  }
+
+  return Expanded(
+    child: ListView(
+      shrinkWrap: true,
+      children:
+          cheatsheetsCopy.map((e) => CheatsheetListTile(sheet: e)).toList(),
+    ),
+  );
 }
