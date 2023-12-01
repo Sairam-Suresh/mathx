@@ -87,6 +87,31 @@ class Notes extends HookConsumerWidget {
       ValueNotifier<String> searchTerm, BuildContext context) {
     final mathNotesCopy = mathNotes.map((e) => e).toList();
 
+    if (mathNotesCopy.isEmpty) {
+      // At this stage probably means that the user does not have any notes
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.question_mark_outlined),
+            Text(
+              "You do not seem to have any notes at the moment.",
+              style: Theme.of(context).textTheme.headlineMedium,
+              textAlign: TextAlign.center,
+              softWrap: true,
+            ),
+            const Text(
+              "Try clicking the plus butten to get started with your first note.",
+              textAlign: TextAlign.center,
+              softWrap: true,
+            )
+          ],
+        ),
+      );
+    }
+
     if (searchTerm.value.isNotEmpty) {
       mathNotesCopy.removeWhere((element) => !(element.name
           .toLowerCase()
