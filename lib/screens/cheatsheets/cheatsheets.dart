@@ -117,58 +117,75 @@ class Cheatsheets extends HookConsumerWidget {
           ),
           (cheatsheets.valueOrNull == null)
               ? const Center(child: CircularProgressIndicator())
-              : buildCheatSheetList(
-                  cheatSheetList, filter.state, searchTerm, context)
+              : BuildCheatSheetList(
+                  cheatsheets: cheatSheetList,
+                  filters: filter.state,
+                  search: searchTerm)
         ],
       ),
     ));
   }
 }
 
-Widget buildCheatSheetList(List<Cheatsheet> cheatsheets, FilterState filters,
-    ValueNotifier<String> search, BuildContext context) {
-  final cheatsheetsCopy = cheatsheets.map((e) => e).toList();
+class BuildCheatSheetList extends ConsumerWidget {
+  const BuildCheatSheetList(
+      {super.key,
+      required this.cheatsheets,
+      required this.filters,
+      required this.search});
 
-  if (filters.filters.isNotEmpty) {
-    cheatsheetsCopy.removeWhere(
-        (element) => !(filters.filters.contains(element.secondaryLevel)));
-  }
+  final List<Cheatsheet> cheatsheets;
+  final FilterState filters;
+  final ValueNotifier<String> search;
 
-  if (search.value.isNotEmpty) {
-    cheatsheetsCopy.removeWhere((element) =>
-        !(element.name.toLowerCase().contains(search.value.toLowerCase())));
-  }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var listener = ref.watch(
+        cheatsheetsRiverpodProvider); // Need to use this to get latest changes TODO: Optimise this to reduce widget builds
 
-  if (cheatsheetsCopy.isEmpty) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Spacer(),
-            Text(
-              "We could not find any cheatsheets with your search term and/or filters",
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const Text(
-              "Try clearing your filters or using another search term",
-              textAlign: TextAlign.center,
-            ),
-            const Spacer()
-          ],
+    final cheatsheetsCopy = cheatsheets.map((e) => e).toList();
+
+    if (filters.filters.isNotEmpty) {
+      cheatsheetsCopy.removeWhere(
+          (element) => !(filters.filters.contains(element.secondaryLevel)));
+    }
+
+    if (search.value.isNotEmpty) {
+      cheatsheetsCopy.removeWhere((element) =>
+          !(element.name.toLowerCase().contains(search.value.toLowerCase())));
+    }
+
+    if (cheatsheetsCopy.isEmpty) {
+      return Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Spacer(),
+              Text(
+                "We could not find any cheatsheets with your search term and/or filters",
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const Text(
+                "Try clearing your filters or using another search term",
+                textAlign: TextAlign.center,
+              ),
+              const Spacer()
+            ],
+          ),
         ),
+      );
+    }
+
+    return Expanded(
+      child: ListView(
+        shrinkWrap: true,
+        children:
+            cheatsheetsCopy.map((e) => CheatsheetListTile(sheet: e)).toList(),
       ),
     );
   }
-
-  return Expanded(
-    child: ListView(
-      shrinkWrap: true,
-      children:
-          cheatsheetsCopy.map((e) => CheatsheetListTile(sheet: e)).toList(),
-    ),
-  );
 }
