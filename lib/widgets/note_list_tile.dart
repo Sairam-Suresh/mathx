@@ -47,6 +47,7 @@ class NoteListTile extends ConsumerWidget {
                     ]),
               );
             },
+            autoClose: true,
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
@@ -56,6 +57,7 @@ class NoteListTile extends ConsumerWidget {
             onPressed: (context) async {
               await shareNote(context, note);
             },
+            autoClose: true,
             backgroundColor: Colors.blueAccent,
             foregroundColor: Colors.white,
             icon: Icons.share,
