@@ -32,8 +32,7 @@ class CheatSheetViewer extends HookConsumerWidget {
                           onPressed: () {
                             ref
                                 .read(cheatsheetsRiverpodProvider.notifier)
-                                .changeCheatsheetLikeStatus(
-                                    snapshot.data!.$1.name);
+                                .toggleCheatsheetLikeStatus(snapshot.data!.$1);
                           },
                           icon: snapshot.data!.$1.starred
                               ? const Icon(Icons.star)
