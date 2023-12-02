@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart' hide JsonKey;
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mathx/logic/delta_md_converters/delta_markdown_decoder.dart';
-import 'package:mathx/logic/delta_md_converters/delta_markdown_encoder.dart';
+import 'package:mathx/logic/note_converters/note_converters.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v1.dart';
 
@@ -53,7 +52,7 @@ class MathNote with _$MathNote {
     return MathNote(
         uuid: const Uuid().v1().toString(),
         name: extractedData[0],
-        content: DeltaMarkdownDecoder().convert(extractedData[1]),
+        content: mdToDel(extractedData[1]),
         renderMath: extractedData[2] == "true" ? true : false,
         lastModifiedDate: DateTime.now());
   }
@@ -77,7 +76,7 @@ class MathNote with _$MathNote {
     return MathNote(
         uuid: const Uuid().v1().toString(),
         name: extractedData[0],
-        content: DeltaMarkdownDecoder().convert(extractedData[1]),
+        content: mdToDel(extractedData[1]),
         renderMath: extractedData[2] == "true" ? true : false,
         lastModifiedDate: DateTime.now());
   }
@@ -96,7 +95,7 @@ class MathNote with _$MathNote {
 }
 
 extension DeepLinkUtils on MathNote {
-  String contentToMarkDown() => DeltaMarkdownEncoder().convert(content);
+  String contentToMarkDown() => delToMd(content);
 
   String toDeepLink(DeepLinkType type) {
     // if (type == DeepLinkType.delta) return "mathx:///notes?source=${base64Encode(utf8.encode("$name ␢␆␝⎠⎡⍰⎀ ${jsonEncode(content)} ␢␆␝⎠⎡⍰⎀ $renderMath"))}";
