@@ -30,23 +30,22 @@ class CheatsheetsRiverpod extends _$CheatsheetsRiverpod {
     return (targetSheet, pathToSheet);
   }
 
-  Future changeCheatsheetLikeStatus(String noteName) async {
-    var db = ref.read(databaseRiverpodProvider);
-
-    var targetSheet = await ((db.select(db.cheatsheets)
-          ..where((tbl) => tbl.name.equals(noteName)))
-        .getSingle());
-
-    (db.update(db.cheatsheets)..where((tbl) => tbl.name.equals(noteName)))
-        .write(CheatsheetsCompanion(starred: Value(!targetSheet.starred)));
-
-    ref.invalidateSelf();
-  }
-
   Future<List<Cheatsheet>> obtainAllLikedCheatsheets() async {
     var db = ref.read(databaseRiverpodProvider);
 
     return (db.select(db.cheatsheets)..where((tbl) => tbl.starred.equals(true)))
         .get();
+  }
+
+  Future toggleCheatsheetLikeStatus(Cheatsheet sheet) async {
+    var db = ref.read(databaseRiverpodProvider);
+
+    await (db.update(db.cheatsheets)
+          ..where((tbl) => tbl.name.equals(sheet.name)))
+        .write(CheatsheetsCompanion(
+      starred: Value(!sheet.starred),
+    ));
+
+    ref.invalidateSelf();
   }
 }
